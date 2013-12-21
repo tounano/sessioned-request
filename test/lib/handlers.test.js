@@ -118,6 +118,95 @@ describe("sessioned-request", function () {
         })
       })
     })
-
+    describe("LoggedOutHandler", function () {
+      var LoggedOutHandler = handlers.LoggedOutHandler;
+      var handler;
+      var loginManager;
+      beforeEach( function () {
+        loginManager = {login: when.resolve };
+        handler = new LoggedOutHandler(loginManager);
+      })
+      it("can be instantiated", function () {
+        new LoggedOutHandler();
+      })
+      it("should extend CoR", function () {
+        handler.should.have.property("setNextHandler");
+      })
+      describe("#.handle()", function () {
+        it("returns a promise", function () {
+          handler.handle().should.have.property("then");
+        })
+        it("tries to relogin", function () {
+          sinon.spy(loginManager, "login");
+          handler.handle();
+          loginManager.login.should.be.called;
+        })
+        describe("Given a relogin attempt failed", function () {
+          it("returns rejected reason of loginManager", function (done) {
+            var reason = new Error("FAILED");
+            loginManager.login = function () { return when.reject(reason); }
+            handler.handle().should.be.rejectedWith(reason).and.notify(done);
+          })
+        })
+        describe("Given a relogin attempt succeeded", function () {
+          it("should be handled by the next Handler", function (done) {
+            var nextHandler = {handle: when.resolve };
+            sinon.spy(nextHandler, "handle");
+            handler.setNextHandler(nextHandler).handle().then( function () {
+              nextHandler.handle.should.be.called;
+            }).should.notify(done);
+          })
+        })
+      })
+    })
+    describe("RetryRequestHandler", function () {
+      var RetryRequestHandler = handlers.RetryRequestHandler;
+      it("can be instantiated", function () {
+        new RetryRequestHandler();
+      })
+      it("and should extend CoR", function () {
+        var handler = new RetryRequestHandler();
+        handler.should.have.property("setNextHandler");
+      })
+      describe("#.handle()", function () {
+        var command;
+        var handler;
+        beforeEach( function () {
+          command = {execute: when.resolve };
+          handler = new RetryRequestHandler(command);
+        })
+        it("returns a promise", function () {
+          handler.handle().should.have.property("then");
+        })
+        it("should ask a PromisifiedRequestCommand to execute()", function () {
+          sinon.spy(command, "execute");
+          handler.handle();
+          command.execute.should.be.called;
+        })
+        describe("When a request fails", function () {
+          it("returns rejected promise with Request's reason", function (done) {
+            var rejected = when.reject("ERROR");
+            command.execute = function() {return rejected; };
+            handler.handle().should.be.rejectedWith("ERROR").and.notify(done);
+          })
+        })
+        describe("When a request succeeds", function () {
+          it("should get handlerd by the next handler", function (done) {
+            var nextHandler = {handle: sinon.spy()};
+            handler.setNextHandler(nextHandler).handle().then( function () {
+              nextHandler.handle.should.be.called;
+            }).should.notify(done);
+          })
+          it("with the response of Request", function (done) {
+            var response = {body: ""};
+            command.execute = function () {return when.resolve(response)};
+            var nextHandler = {handle: sinon.spy()};
+            handler.setNextHandler(nextHandler).handle().then( function () {
+              nextHandler.handle.should.be.calledWith(response);
+            }).should.notify(done);
+          })
+        })
+      })
+    })
   })
 })
