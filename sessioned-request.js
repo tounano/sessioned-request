@@ -4,11 +4,11 @@ var when = require("when");
 var LoginManager = function () {}
 _.extend(LoginManager.prototype, {
 
-  login: function (loginDetails) {
+  login: function () {
     var that = this;
     return this.options.
       formSubmitter
-        .submitForm(loginDetails)
+        .submitForm(this.options.loginDetails)
         .then( function (response) {
           if (!that.options.loginValidator.validateLogin(response)) {
             return when.reject(that.options.errorProvider.whatHappened(response));

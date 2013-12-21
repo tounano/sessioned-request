@@ -54,7 +54,7 @@ describe("sessioned-request", function () {
           })
           it("with `loginDetails`", function () {
             var loginDetails = { username: "", password: "" };
-            loginManager.login(loginDetails);
+            loginManager.updateOptions({loginDetails: loginDetails}).login();
             formSubmitter.submitForm.should.be.calledWith(loginDetails);
           })
           it("and validates if the login was successful", function (done) {
