@@ -63,7 +63,7 @@ describe("sessioned-request", function () {
               loginValidator.validateLogin.should.be.called;
             }).should.notify(done);
           })
-          describe("Given a login attempt failed", function () {
+          describe("When a login attempt failed", function () {
             var error;
             var errorProvider;
             beforeEach( function () {
@@ -85,7 +85,7 @@ describe("sessioned-request", function () {
               loginManager.login().should.be.rejectedWith(error).and.notify(done);
             })
           })
-          describe("Given a login attempt succeeded", function () {
+          describe("When a login attempt succeeded", function () {
             it("resolves to true", function (done) {
               loginManager.login().should.become(true).and.notify(done);
             })
