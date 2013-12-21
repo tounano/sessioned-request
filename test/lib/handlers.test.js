@@ -208,5 +208,33 @@ describe("sessioned-request", function () {
         })
       })
     })
+    describe("ErrorRequestHandler", function () {
+      var ErrorRequestHandler = handlers.ErrorRequestHandler;
+      var errorProvider = {whatHappened: function () { return new Error("error")}};
+      sinon.spy(errorProvider, "whatHappened");
+      var handler = new ErrorRequestHandler(errorProvider);
+      it("can be instantiated", function () {
+        new ErrorRequestHandler();
+      })
+      it("extend CoRHandler", function () {
+        handler.should.have.property("setNextHandler");
+      })
+      describe("#.handle()", function () {
+        it("returns a promise", function () {
+          handler.handle().should.have.property("then");
+        })
+        describe("Given ErrorProvider", function () {
+          it("should ask what happened", function () {
+            handler.handle();
+            errorProvider.whatHappened.should.be.called;
+          })
+          it("with the Response", function () {
+            var response = {body: ""};
+            handler.handle(response);
+            errorProvider.whatHappened.should.be.calledWith(response);
+          })
+        })
+      })
+    })
   })
 })
