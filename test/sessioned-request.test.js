@@ -111,7 +111,7 @@ describe("sessioned-request", function () {
       var command;
       beforeEach( function () {
         command = {execute: when.resolve}
-        promisedRequestCommand = {get: function() { return command } };
+        promisedRequestCommand = {get: function() { return command }, post: function() { return command } };
         session.updateOptions({promisedRequestCommand: promisedRequestCommand});
         responseHandler = {handle: when.resolve };
         session.updateOptions({ responseHandler: responseHandler })
