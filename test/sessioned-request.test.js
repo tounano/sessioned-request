@@ -94,4 +94,61 @@ describe("sessioned-request", function () {
       })
     })
   })
+  describe("SessionedRequest", function () {
+    var SessionedRequest = sRequest.SessionedRequest;
+    it("can be instantiated", function () {
+      new SessionedRequest();
+    })
+    describe("Given a new instance of SessionedRequest", function () {
+      var session = new SessionedRequest();
+      describe("#.updateOptions()", function () {
+        it("should return itself", function () {
+          session.updateOptions().should.be.equal(session);
+        })
+      })
+      describe("#.get()", function () {
+        var promisedRequestCommand;
+        var responseHandler;
+        var command;
+        beforeEach( function () {
+          command = {execute: when.resolve}
+          promisedRequestCommand = {get: function() { return command } };
+          session.updateOptions({promisedRequestCommand: promisedRequestCommand});
+          responseHandler = {handle: when.resolve };
+          session.updateOptions({ responseHandler: responseHandler })
+        })
+        it("returns a promise", function () {
+          session.get().should.have.property("then");
+        })
+        describe("Given a PromisedRequestCommand", function () {
+          it("performs .get() on promisedRequest", function () {
+            sinon.spy(promisedRequestCommand, "get");
+            session.get();
+            promisedRequestCommand.get.should.be.called;
+          })
+          it("with the same arguments", function () {
+            sinon.spy(promisedRequestCommand, "get");
+            session.get("URL");
+            promisedRequestCommand.get.should.be.calledWith("URL");
+          })
+          it("and Executes the request", function () {
+            sinon.spy(command, "execute");
+            session.get("");
+            command.execute.should.be.called;
+          })
+          it("and calls ResponseHandler", function (done) {
+            sinon.spy(responseHandler, "handle");
+            session.get().then( function () {
+              responseHandler.handle.should.be.called;
+            }).should.notify(done);
+          })
+        })
+      })
+      describe("#.post()", function () {
+        it("returns a promise", function () {
+          session.post().should.have.property("then");
+        })
+      })
+    })
+  })
 })
