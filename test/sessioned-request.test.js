@@ -106,17 +106,17 @@ describe("sessioned-request", function () {
           session.updateOptions().should.be.equal(session);
         })
       })
+      var promisedRequestCommand;
+      var responseHandler;
+      var command;
+      beforeEach( function () {
+        command = {execute: when.resolve}
+        promisedRequestCommand = {get: function() { return command } };
+        session.updateOptions({promisedRequestCommand: promisedRequestCommand});
+        responseHandler = {handle: when.resolve };
+        session.updateOptions({ responseHandler: responseHandler })
+      })
       describe("#.get()", function () {
-        var promisedRequestCommand;
-        var responseHandler;
-        var command;
-        beforeEach( function () {
-          command = {execute: when.resolve}
-          promisedRequestCommand = {get: function() { return command } };
-          session.updateOptions({promisedRequestCommand: promisedRequestCommand});
-          responseHandler = {handle: when.resolve };
-          session.updateOptions({ responseHandler: responseHandler })
-        })
         it("returns a promise", function () {
           session.get().should.have.property("then");
         })
