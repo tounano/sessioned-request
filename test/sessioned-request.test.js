@@ -106,13 +106,13 @@ describe("sessioned-request", function () {
           session.updateOptions().should.be.equal(session);
         })
       })
-      var promisedRequestCommand;
+      var pReqCmd;
       var responseHandler;
       var command;
       beforeEach( function () {
         command = {execute: when.resolve}
-        promisedRequestCommand = {get: function() { return command }, post: function() { return command } };
-        session.updateOptions({promisedRequestCommand: promisedRequestCommand});
+        pReqCmd = {get: function() { return command }, post: function() { return command } };
+        session.updateOptions({pReqCmd: pReqCmd});
         responseHandler = {handle: when.resolve };
         session.updateOptions({ responseHandler: responseHandler })
       })
@@ -120,16 +120,16 @@ describe("sessioned-request", function () {
         it("returns a promise", function () {
           session.get().should.have.property("then");
         })
-        describe("Given a PromisedRequestCommand", function () {
+        describe("Given a pReqCmd", function () {
           it("performs .get() on promisedRequest", function () {
-            sinon.spy(promisedRequestCommand, "get");
+            sinon.spy(pReqCmd, "get");
             session.get();
-            promisedRequestCommand.get.should.be.called;
+            pReqCmd.get.should.be.called;
           })
           it("with the same arguments", function () {
-            sinon.spy(promisedRequestCommand, "get");
+            sinon.spy(pReqCmd, "get");
             session.get("URL");
-            promisedRequestCommand.get.should.be.calledWith("URL");
+            pReqCmd.get.should.be.calledWith("URL");
           })
           it("and Executes the request", function () {
             sinon.spy(command, "execute");

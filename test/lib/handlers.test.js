@@ -178,7 +178,7 @@ describe("sessioned-request", function () {
         it("returns a promise", function () {
           handler.handle().should.have.property("then");
         })
-        it("should ask a PromisifiedRequestCommand to execute()", function () {
+        it("should ask a pReqCmd to execute()", function () {
           sinon.spy(command, "execute");
           handler.handle();
           command.execute.should.be.called;
